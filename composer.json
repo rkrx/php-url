@@ -1,6 +1,6 @@
 {
 	"name": "rkr/url",
-	"description": "Easy to use query builder for PHP5.3+/PDO",
+	"description": "Url builder",
 	"license": "MIT",
 	"authors": [{
 		"name": "ron",
