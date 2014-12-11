@@ -5,8 +5,8 @@
 		 verbose="true"
 		 timeoutForSmallTests="5">
 	<testsuites>
-		<testsuite name="Streams">
-			<file>tests/UrlTest.php</file>
+		<testsuite name="Urls">
+			<directory>tests</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>

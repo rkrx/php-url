@@ -27,7 +27,7 @@ class Url {
 	 * @param UrlBuilder $builder
 	 * @param UrlDefaults $defaults
 	 */
-	public function __construct($url, $canonicalUrl = null, UrlBuilder $builder = null, UrlDefaults $defaults = null) {
+	public function __construct($url = null, $canonicalUrl = null, UrlBuilder $builder = null, UrlDefaults $defaults = null) {
 		$this->builder = $builder ?: new UrlBuilder();
 		$this->defaults = $defaults ?: new UrlDefaults();
 
