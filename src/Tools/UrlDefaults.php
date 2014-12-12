@@ -185,7 +185,6 @@ class UrlDefaults {
 			UrlConstants::QUERY => $this->query,
 			UrlConstants::FRAGMENT => $this->fragment,
 		);
-
 		return array_merge($defaults, $parts);
 	}
 }

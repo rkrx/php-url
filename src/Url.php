@@ -3,40 +3,33 @@ namespace Kir\Url;
 
 use Kir\Url\Tools\UrlBuilder;
 use Kir\Url\Tools\UrlConstants AS Con;
-use Kir\Url\Tools\UrlDefaults;
 
 class Url {
 	/**
 	 * @var array
 	 */
 	private $parts = array();
-
 	/**
 	 * @var UrlBuilder
 	 */
 	private $builder;
 
 	/**
-	 * @var UrlDefaults
-	 */
-	private $defaults;
-
-	/**
 	 * @param string $url
 	 * @param string|null $canonicalUrl
 	 * @param UrlBuilder $builder
-	 * @param UrlDefaults $defaults
 	 */
-	public function __construct($url = null, $canonicalUrl = null, UrlBuilder $builder = null, UrlDefaults $defaults = null) {
+	public function __construct($url = null, $canonicalUrl = null, UrlBuilder $builder = null) {
 		$this->builder = $builder ?: new UrlBuilder();
-		$this->defaults = $defaults ?: new UrlDefaults();
 
 		$parts = parse_url($url);
+		$canonicalParts = parse_url($canonicalUrl);
+
+		$parts = array_merge($canonicalParts, $parts);
 
 		$parts = array_merge(array(Con::QUERY => ''), $parts);
 		parse_str($parts[Con::QUERY], $query);
 		$parts[Con::QUERY] = $query;
-		$parts = $this->defaults->extend($parts);
 		$this->parts = $parts;
 	}
 

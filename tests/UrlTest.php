@@ -38,4 +38,9 @@ class UrlTest extends \PHPUnit_Framework_TestCase {
 		$url->setFragment('test');
 		$this->assertEquals('proto://root:pa55w0rd@example.org:443/path?a=1&b=%C3%B6%C3%A4%C3%BC%C3%9F#test', $url->__toString());
 	}
+
+	public function testCanonicalUrl() {
+		$url = new Url('/path', 'http://example.org/?a=1');
+		$this->assertEquals('http://example.org/path?a=1', $url->__toString());
+	}
 }
