@@ -12,8 +12,8 @@ class UrlFactory {
 	/**
 	 * @param UrlBuilder $builder
 	 */
-	public function __construct(UrlBuilder $builder) {
-		$this->builder = $builder;
+	public function __construct(UrlBuilder $builder = null) {
+		$this->builder = $builder ?: new UrlBuilder();
 	}
 
 	/**
@@ -22,5 +22,6 @@ class UrlFactory {
 	 * @return Url
 	 */
 	public function create($url, $canonical = null) {
+		return new Url($url, $canonical, $this->builder);
 	}
 }

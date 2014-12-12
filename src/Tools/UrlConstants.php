@@ -1,7 +1,7 @@
 <?php
 namespace Kir\Url\Tools;
 
-class UrlConstants {
+abstract class UrlConstants {
 	const SCHEME = 'scheme';
 	const USER = 'user';
 	const PASS = 'pass';

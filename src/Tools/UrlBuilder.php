@@ -4,23 +4,32 @@ namespace Kir\Url\Tools;
 class UrlBuilder {
 	/**
 	 * @param array $urlParts
-	 * @param UrlDefaults $defaults
 	 * @return string
 	 */
-	public function build(array $urlParts, UrlDefaults $defaults = null) {
-		$defaults = $defaults ?: new UrlDefaults();
-		$parts = $defaults->extend($urlParts);
+	public function build(array $urlParts) {
+		$defaults = array(
+			UrlConstants::SCHEME => null,
+			UrlConstants::USER => null,
+			UrlConstants::PASS => null,
+			UrlConstants::HOST => null,
+			UrlConstants::PORT => null,
+			UrlConstants::PATH => null,
+			UrlConstants::QUERY => null,
+			UrlConstants::FRAGMENT => null,
+		);
 
-		$hierarchicalPart = $this->buildHierarchicalPart($parts);
+		$urlParts = array_merge($defaults, $urlParts);
 
-		if($parts[UrlConstants::HOST] !== null) {
-			$schemeAndHierarchicalPart = $this->concat($parts[UrlConstants::SCHEME], $hierarchicalPart, '://');
+		$hierarchicalPart = $this->buildHierarchicalPart($urlParts);
+
+		if($urlParts[UrlConstants::HOST] !== null) {
+			$schemeAndHierarchicalPart = $this->concat($urlParts[UrlConstants::SCHEME], $hierarchicalPart, '://');
 		} else {
-			$schemeAndHierarchicalPart = $this->concat($parts[UrlConstants::SCHEME], $hierarchicalPart, ':');
+			$schemeAndHierarchicalPart = $this->concat($urlParts[UrlConstants::SCHEME], $hierarchicalPart, ':');
 		}
 
-		$url = $this->concat($schemeAndHierarchicalPart, $this->buildQuery($parts), '?');
-		$url = $this->concat($url, $parts[UrlConstants::FRAGMENT], '#');
+		$url = $this->concat($schemeAndHierarchicalPart, $this->buildQuery($urlParts), '?');
+		$url = $this->concat($url, $urlParts[UrlConstants::FRAGMENT], '#');
 
 		return $url;
 	}

@@ -26,6 +26,18 @@ class UrlTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals($uri, $url->__toString());
 	}
 
+	public function testGetters() {
+		$url = new Url('proto://root:pa55w0rd@example.org:443/path?a=1&b=%C3%B6%C3%A4%C3%BC%C3%9F#test');
+		$this->assertEquals('proto', $url->getScheme());
+		$this->assertEquals('root', $url->getUsername());
+		$this->assertEquals('pa55w0rd', $url->getPassword());
+		$this->assertEquals('example.org', $url->getHost());
+		$this->assertEquals('443', $url->getPort());
+		$this->assertEquals('/path', $url->getPath());
+		$this->assertEquals(array('a' => 1, 'b' => 'öäüß'), $url->getQuery());
+		$this->assertEquals('test', $url->getFragment());
+	}
+
 	public function testSetters() {
 		$url = new Url();
 		$url->setScheme('proto');
