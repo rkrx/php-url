@@ -3,6 +3,7 @@ namespace Kir\Url;
 
 use Kir\Url\Tools\UrlBuilder;
 use Kir\Url\Tools\UrlConstants AS Con;
+use Kir\Url\Tools\UrlConstants;
 
 class Url {
 	/**
@@ -25,7 +26,18 @@ class Url {
 		$parts = parse_url($url);
 		$canonicalParts = parse_url($canonicalUrl);
 
-		$parts = array_merge($canonicalParts, $parts);
+		$defaults = array(
+			UrlConstants::SCHEME => null,
+			UrlConstants::USER => null,
+			UrlConstants::PASS => null,
+			UrlConstants::HOST => null,
+			UrlConstants::PORT => null,
+			UrlConstants::PATH => null,
+			UrlConstants::QUERY => null,
+			UrlConstants::FRAGMENT => null,
+		);
+
+		$parts = array_merge($defaults, $canonicalParts, $parts);
 
 		$parts = array_merge(array(Con::QUERY => ''), $parts);
 		parse_str($parts[Con::QUERY], $query);
