@@ -49,7 +49,10 @@ class Url {
 	 * @return string
 	 */
 	public function getScheme() {
-		return $this->parts[Con::SCHEME];
+		if(array_key_exists(Con::SCHEME, $this->parts)) {
+			return $this->parts[Con::SCHEME];
+		}
+		return null;
 	}
 
 	/**
@@ -65,7 +68,10 @@ class Url {
 	 * @return null|string
 	 */
 	public function getUsername() {
-		return $this->parts[Con::USER];
+		if(array_key_exists(Con::USER, $this->parts)) {
+			return $this->parts[Con::USER];
+		}
+		return null;
 	}
 
 	/**
@@ -81,7 +87,10 @@ class Url {
 	 * @return null|string
 	 */
 	public function getPassword() {
-		return $this->parts[Con::PASS];
+		if(array_key_exists(Con::PASS, $this->parts)) {
+			return $this->parts[Con::PASS];
+		}
+		return null;
 	}
 
 	/**
@@ -97,7 +106,10 @@ class Url {
 	 * @return string
 	 */
 	public function getHost() {
-		return $this->parts[Con::HOST];
+		if(array_key_exists(Con::HOST, $this->parts)) {
+			return $this->parts[Con::HOST];
+		}
+		return null;
 	}
 
 	/**
@@ -113,7 +125,10 @@ class Url {
 	 * @return int|null
 	 */
 	public function getPort() {
-		return $this->parts[Con::PORT];
+		if(array_key_exists(Con::PORT, $this->parts)) {
+			return $this->parts[Con::PORT];
+		}
+		return null;
 	}
 
 	/**
@@ -129,7 +144,10 @@ class Url {
 	 * @return null|string
 	 */
 	public function getPath() {
-		return $this->parts[Con::PATH];
+		if(array_key_exists(Con::PATH, $this->parts)) {
+			return $this->parts[Con::PATH];
+		}
+		return null;
 	}
 
 	/**
@@ -145,7 +163,10 @@ class Url {
 	 * @return array
 	 */
 	public function getQuery() {
-		return $this->parts[Con::QUERY];
+		if(array_key_exists(Con::QUERY, $this->parts)) {
+			return $this->parts[Con::QUERY];
+		}
+		return null;
 	}
 
 	/**
@@ -161,7 +182,10 @@ class Url {
 	 * @return null|string
 	 */
 	public function getFragment() {
-		return $this->parts[Con::FRAGMENT];
+		if(array_key_exists(Con::FRAGMENT, $this->parts)) {
+			return $this->parts[Con::FRAGMENT];
+		}
+		return null;
 	}
 
 	/**
