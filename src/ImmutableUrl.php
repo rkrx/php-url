@@ -2,6 +2,7 @@
 namespace Kir\Url;
 
 use Kir\Url\Tools\UrlBuilder;
+use Kir\Url\Tools\UrlTools;
 use Psr\Http\Message\UriInterface;
 
 class ImmutableUrl implements UriInterface {
@@ -16,20 +17,16 @@ class ImmutableUrl implements UriInterface {
 	 */
 	public function __construct(array $parts, UrlBuilder $urlBuilder = null) {
 		$defaults = [
-			PHP_URL_SCHEME => '',
-			PHP_URL_USER => '',
-			PHP_URL_PASS => '',
-			PHP_URL_HOST => '',
+			PHP_URL_SCHEME => null,
+			PHP_URL_USER => null,
+			PHP_URL_PASS => null,
+			PHP_URL_HOST => null,
 			PHP_URL_PORT => null,
-			PHP_URL_PATH => '',
-			PHP_URL_QUERY => '',
-			PHP_URL_FRAGMENT => '',
+			PHP_URL_PATH => null,
+			PHP_URL_QUERY => [],
+			PHP_URL_FRAGMENT => null,
 		];
-		$parts = array_intersect_key($parts, $defaults);
-		$parts = array_merge($defaults, $parts);
-		foreach($parts as $key => $part) {
-			$parts[$key] = trim($part);
-		}
+		$parts = UrlTools::merge($defaults, $parts);
 		$this->parts = $parts;
 		if($urlBuilder === null) {
 			$urlBuilder = new UrlBuilder();
@@ -222,7 +219,7 @@ class ImmutableUrl implements UriInterface {
 	 * @throws \InvalidArgumentException for invalid or unsupported schemes.
 	 */
 	public function withScheme($scheme) {
-		return $this->withPart(PHP_URL_SCHEME, $scheme);
+		return $this->withPart([PHP_URL_SCHEME => $scheme]);
 	}
 
 	/**
@@ -238,11 +235,7 @@ class ImmutableUrl implements UriInterface {
 	 * @return self A new instance with the specified user information.
 	 */
 	public function withUserInfo($user, $password = null) {
-		$parts = $this->parts;
-		$parts[PHP_URL_USER] = (string) $user;
-		$parts[PHP_URL_PASS] = (string) $user;
-		$url = new ImmutableUrl($parts, $this->urlBuilder);
-		return $url;
+		return $this->withPart([PHP_URL_USER => $user, PHP_URL_PASS => $password]);
 	}
 
 	/**
@@ -256,7 +249,7 @@ class ImmutableUrl implements UriInterface {
 	 * @throws \InvalidArgumentException for invalid hostnames.
 	 */
 	public function withHost($host) {
-		return $this->withPart(PHP_URL_HOST, $host);
+		return $this->withPart([PHP_URL_HOST => $host]);
 	}
 
 	/**
@@ -274,7 +267,7 @@ class ImmutableUrl implements UriInterface {
 	 * @throws \InvalidArgumentException for invalid ports.
 	 */
 	public function withPort($port) {
-		return $this->withPart(PHP_URL_PORT, $port);
+		return $this->withPart([PHP_URL_PORT => $port]);
 	}
 
 	/**
@@ -296,7 +289,7 @@ class ImmutableUrl implements UriInterface {
 	 * @throws \InvalidArgumentException for invalid paths.
 	 */
 	public function withPath($path) {
-		return $this->withPart(PHP_URL_PATH, $path);
+		return $this->withPart([PHP_URL_PATH => $path]);
 	}
 
 	/**
@@ -312,7 +305,7 @@ class ImmutableUrl implements UriInterface {
 	 * @throws \InvalidArgumentException for invalid query strings.
 	 */
 	public function withQuery($query) {
-		return $this->withPart(PHP_URL_QUERY, $query);
+		return $this->withPart([PHP_URL_QUERY => $query]);
 	}
 
 	/**
@@ -327,7 +320,7 @@ class ImmutableUrl implements UriInterface {
 	 * @return self A new instance with the specified fragment.
 	 */
 	public function withFragment($fragment) {
-		return $this->withPart(PHP_URL_FRAGMENT, $fragment);
+		return $this->withPart([PHP_URL_FRAGMENT => $fragment]);
 	}
 
 	/**
@@ -359,18 +352,19 @@ class ImmutableUrl implements UriInterface {
 	 * @return ImmutableUrl
 	 */
 	public function __clone() {
-		return new ImmutableUrl($this->parts, $this->urlBuilder);
+		return new static($this->parts, $this->urlBuilder);
 	}
 
 	/**
-	 * @param int $key
-	 * @param mixed $value
+	 * @param array $kvArray
 	 * @return ImmutableUrl
 	 */
-	private function withPart($key, $value) {
+	private function withPart(array $kvArray) {
 		$parts = $this->parts;
-		$parts[$key] = $value;
-		$url = new ImmutableUrl($parts, $this->urlBuilder);
+		foreach($kvArray as $key => $value) {
+			$parts[$key] = $value;
+		}
+		$url = new static($parts, $this->urlBuilder);
 		return $url;
 	}
 }

@@ -3,7 +3,32 @@ namespace Kir\Url\Tools;
 
 use Psr\Http\Message\UriInterface;
 
-class UrlMapper {
+abstract class UrlTools {
+	static private $parts = [
+		PHP_URL_SCHEME,
+		PHP_URL_HOST,
+		PHP_URL_PORT,
+		PHP_URL_USER,
+		PHP_URL_PASS,
+		PHP_URL_PATH,
+		PHP_URL_QUERY,
+		PHP_URL_FRAGMENT,
+	];
+
+	/**
+	 * @param array $a
+	 * @param array $b
+	 * @return array
+	 */
+	public static function merge(array $a, array $b) {
+		foreach(self::$parts as $partNo) {
+			if(array_key_exists($partNo, $b) && $b[$partNo] !== null) {
+				$a[$partNo] = $b[$partNo];
+			}
+		}
+		return $a;
+	}
+
 	/**
 	 * @param UriInterface $url
 	 * @return array
@@ -31,14 +56,14 @@ class UrlMapper {
 	public static function namedMap(UriInterface $url) {
 		$map = self::map($url);
 		return [
-			UrlConstants::SCHEME => $map[PHP_URL_SCHEME],
-			UrlConstants::USER => $map[PHP_URL_USER],
-			UrlConstants::PASS => $map[PHP_URL_PASS],
-			UrlConstants::HOST => $map[PHP_URL_HOST],
-			UrlConstants::PORT => $map[PHP_URL_PORT],
-			UrlConstants::PATH => $map[PHP_URL_PATH],
-			UrlConstants::QUERY => $map[PHP_URL_QUERY],
-			UrlConstants::FRAGMENT => $map[PHP_URL_FRAGMENT],
+			'scheme' => $map[PHP_URL_SCHEME],
+			'user' => $map[PHP_URL_USER],
+			'pass' => $map[PHP_URL_PASS],
+			'host' => $map[PHP_URL_HOST],
+			'port' => $map[PHP_URL_PORT],
+			'path' => $map[PHP_URL_PATH],
+			'query' => $map[PHP_URL_QUERY],
+			'fragment' => $map[PHP_URL_FRAGMENT],
 		];
 	}
 }

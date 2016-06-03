@@ -8,28 +8,28 @@ class UrlBuilder {
 	 */
 	public function build(array $urlParts) {
 		$defaults = array(
-			UrlConstants::SCHEME => null,
-			UrlConstants::USER => null,
-			UrlConstants::PASS => null,
-			UrlConstants::HOST => null,
-			UrlConstants::PORT => null,
-			UrlConstants::PATH => null,
-			UrlConstants::QUERY => null,
-			UrlConstants::FRAGMENT => null,
+			PHP_URL_SCHEME => null,
+			PHP_URL_USER => null,
+			PHP_URL_PASS => null,
+			PHP_URL_HOST => null,
+			PHP_URL_PORT => null,
+			PHP_URL_PATH => null,
+			PHP_URL_QUERY => null,
+			PHP_URL_FRAGMENT => null,
 		);
 
-		$urlParts = array_merge($defaults, $urlParts);
+		$urlParts = UrlTools::merge($defaults, $urlParts);
 
 		$hierarchicalPart = $this->buildHierarchicalPart($urlParts);
 
-		if($urlParts[UrlConstants::HOST] !== null) {
-			$schemeAndHierarchicalPart = $this->concat($urlParts[UrlConstants::SCHEME], $hierarchicalPart, '://');
+		if($urlParts[PHP_URL_HOST] !== null) {
+			$schemeAndHierarchicalPart = $this->concat($urlParts[PHP_URL_SCHEME], $hierarchicalPart, '://');
 		} else {
-			$schemeAndHierarchicalPart = $this->concat($urlParts[UrlConstants::SCHEME], $hierarchicalPart, ':');
+			$schemeAndHierarchicalPart = $this->concat($urlParts[PHP_URL_SCHEME], $hierarchicalPart, ':');
 		}
 
 		$url = $this->concat($schemeAndHierarchicalPart, $this->buildQuery($urlParts), '?');
-		$url = $this->concat($url, $urlParts[UrlConstants::FRAGMENT], '#');
+		$url = $this->concat($url, $urlParts[PHP_URL_FRAGMENT], '#');
 
 		return $url;
 	}
@@ -41,10 +41,10 @@ class UrlBuilder {
 	private function buildHierarchicalPart(array $parts) {
 		$authority = $this->buildAuthority($parts);
 		$path = null;
-		if($parts[UrlConstants::PATH]) {
-			$path = $parts[UrlConstants::PATH];
+		if($parts[PHP_URL_PATH]) {
+			$path = $parts[PHP_URL_PATH];
 			if($authority !== null) {
-				$path = ltrim($parts[UrlConstants::PATH], '/');
+				$path = ltrim($parts[PHP_URL_PATH], '/');
 			}
 		}
 		return $this->concat($authority, $path, '/');
@@ -68,10 +68,10 @@ class UrlBuilder {
 	 * @return null|string
 	 */
 	private function buildUserInfo(array $parts) {
-		if($parts[UrlConstants::USER] === null) {
+		if($parts[PHP_URL_USER] === null) {
 			return null;
 		}
-		return $this->concat($parts[UrlConstants::USER], $parts[UrlConstants::PASS], ':');
+		return $this->concat($parts[PHP_URL_USER], $parts[PHP_URL_PASS], ':');
 	}
 
 	/**
@@ -79,10 +79,10 @@ class UrlBuilder {
 	 * @return string
 	 */
 	private function buildTarget(array $parts) {
-		if($parts[UrlConstants::HOST] === null) {
+		if($parts[PHP_URL_HOST] === null) {
 			return null;
 		}
-		return $this->concat($parts[UrlConstants::HOST], $parts[UrlConstants::PORT], ':');
+		return $this->concat($parts[PHP_URL_HOST], $parts[PHP_URL_PORT], ':');
 	}
 
 	/**
@@ -90,10 +90,10 @@ class UrlBuilder {
 	 * @return string|null
 	 */
 	private function buildQuery(array $parts) {
-		if(!count($parts[UrlConstants::QUERY])) {
+		if(!strlen($parts[PHP_URL_QUERY])) {
 			return null;
 		}
-		return http_build_query($parts[UrlConstants::QUERY]);
+		return $parts[PHP_URL_QUERY];
 	}
 
 	/**
