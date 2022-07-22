@@ -3,113 +3,106 @@ namespace Kir\Url\Tools;
 
 class UrlBuilder {
 	/**
-	 * @param array $urlParts
+	 * @param UrlParts $urlParts
 	 * @return string
 	 */
-	public function build(array $urlParts) {
-		$defaults = array(
-			UrlConstants::SCHEME => null,
-			UrlConstants::USER => null,
-			UrlConstants::PASS => null,
-			UrlConstants::HOST => null,
-			UrlConstants::PORT => null,
-			UrlConstants::PATH => null,
-			UrlConstants::QUERY => null,
-			UrlConstants::FRAGMENT => null,
-		);
-
-		$urlParts = array_merge($defaults, $urlParts);
-
+	public function build(UrlParts $urlParts) {
 		$hierarchicalPart = $this->buildHierarchicalPart($urlParts);
 
-		if($urlParts[UrlConstants::HOST] !== null) {
-			$schemeAndHierarchicalPart = $this->concat($urlParts[UrlConstants::SCHEME], $hierarchicalPart, '://');
-		} else {
-			$schemeAndHierarchicalPart = $this->concat($urlParts[UrlConstants::SCHEME], $hierarchicalPart, ':');
-		}
-
-		$url = $this->concat($schemeAndHierarchicalPart, $this->buildQuery($urlParts), '?');
-		$url = $this->concat($url, $urlParts[UrlConstants::FRAGMENT], '#');
-
-		return $url;
-	}
-
-	/**
-	 * @param array $parts
-	 * @return string
-	 */
-	private function buildHierarchicalPart(array $parts) {
-		$authority = $this->buildAuthority($parts);
-		$path = null;
-		if($parts[UrlConstants::PATH]) {
-			$path = $parts[UrlConstants::PATH];
-			if($authority !== null) {
-				$path = ltrim($parts[UrlConstants::PATH], '/');
+		if($urlParts->scheme !== null) {
+			if($urlParts->host !== null) {
+				$hierarchicalPart = self::concat($urlParts->scheme, $hierarchicalPart, '://');
+			} else {
+				$hierarchicalPart = self::concat($urlParts->scheme, $hierarchicalPart, ':');
 			}
 		}
-		return $this->concat($authority, $path, '/');
+
+		$url = self::concat($hierarchicalPart, self::buildQuery($urlParts), '?');
+		$url = self::concat($url, $urlParts->fragment, '#');
+
+		return (string) $url;
 	}
 
 	/**
-	 * @param array $parts
 	 * @return string
 	 */
-	private function buildAuthority(array $parts) {
-		$userInfo = $this->buildUserInfo($parts);
-		$target = $this->buildTarget($parts);
+	private function buildHierarchicalPart(UrlParts $urlParts) {
+		$authority = self::buildAuthority($urlParts);
+		$path = null;
+		if($urlParts->path) {
+			$path = $urlParts->path;
+			if($authority !== null) {
+				$path = ltrim($urlParts->path, '/');
+			}
+		}
+		return (string) self::concat($authority, $path, '/');
+	}
+
+	/**
+	 * @param UrlParts $parts
+	 * @return string|null
+	 */
+	private static function buildAuthority(UrlParts $parts) {
+		$userInfo = self::buildUserInfo($parts);
+		$target = self::buildTarget($parts);
 		if($target === null) {
 			return null;
 		}
-		return $this->concat($userInfo, $target, '@');
+		return self::concat($userInfo, $target, '@');
 	}
-
+	
 	/**
-	 * @param array $parts
+	 * @param UrlParts $parts
 	 * @return null|string
 	 */
-	private function buildUserInfo(array $parts) {
-		if($parts[UrlConstants::USER] === null) {
+	private static function buildUserInfo(UrlParts $parts) {
+		if($parts->user === null) {
 			return null;
 		}
-		return $this->concat($parts[UrlConstants::USER], $parts[UrlConstants::PASS], ':');
+		$username = urlencode($parts->user);
+		$password = $parts->pass !== null ? urlencode($parts->pass) : null;
+		return self::concat($username, $password, ':');
 	}
-
+	
 	/**
-	 * @param array $parts
-	 * @return string
-	 */
-	private function buildTarget(array $parts) {
-		if($parts[UrlConstants::HOST] === null) {
-			return null;
-		}
-		return $this->concat($parts[UrlConstants::HOST], $parts[UrlConstants::PORT], ':');
-	}
-
-	/**
-	 * @param array $parts
+	 * @param UrlParts $parts
 	 * @return string|null
 	 */
-	private function buildQuery(array $parts) {
-		if(!count($parts[UrlConstants::QUERY])) {
+	private static function buildTarget(UrlParts $parts) {
+		if($parts->host === null) {
 			return null;
 		}
-		return http_build_query($parts[UrlConstants::QUERY]);
+		return self::concat($parts->host, $parts->port, ':');
+	}
+	
+	/**
+	 * @param UrlParts $parts
+	 * @return string|null
+	 */
+	private static function buildQuery(UrlParts $parts) {
+		if(!count($parts->query)) {
+			return null;
+		}
+		return http_build_query($parts->query);
 	}
 
 	/**
-	 * @param string $a
-	 * @param string $b
+	 * @param int|string|null $a
+	 * @param int|string|null $b
 	 * @param string $concatenator
-	 * @return string
+	 * @return string|null
 	 */
-	private function concat($a, $b, $concatenator) {
+	private static function concat($a, $b, $concatenator) {
+		if($a === null && $b === null) {
+			return null;
+		}
 		$result = array();
 		if($a !== null) {
-			$result[] = $a;
+			$result[] = (string) $a;
 		}
 		if($b !== null) {
-			$result[] = $b;
+			$result[] = (string) $b;
 		}
-		return join($concatenator, $result);
+		return implode($concatenator, $result);
 	}
 }

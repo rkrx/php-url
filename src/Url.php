@@ -2,114 +2,124 @@
 namespace Kir\Url;
 
 use Kir\Url\Tools\UrlBuilder;
-use Kir\Url\Tools\UrlConstants AS Con;
-use Kir\Url\Tools\UrlConstants;
+use Kir\Url\Tools\UrlParts;
+use Kir\Url\Tools\UrlTools;
+use Traversable;
 
 class Url {
-	/**
-	 * @var array
-	 */
-	private $parts = array();
-	/**
-	 * @var UrlBuilder
-	 */
+	/** @var UrlParts */
+	private $urlParts;
+	/** @var UrlBuilder */
 	private $builder;
-
+	
 	/**
 	 * @param string $url
-	 * @param string|null $canonicalUrl
+	 * @param null|string $canonicalUrl
 	 * @param UrlBuilder $builder
 	 */
 	public function __construct($url = null, $canonicalUrl = null, UrlBuilder $builder = null) {
+		$this->urlParts = new UrlParts();
+		
 		$this->builder = $builder ?: new UrlBuilder();
-
-		$parts = parse_url($url);
-		$canonicalParts = parse_url($canonicalUrl);
-
-		$defaults = array(
-			UrlConstants::SCHEME => null,
-			UrlConstants::USER => null,
-			UrlConstants::PASS => null,
-			UrlConstants::HOST => null,
-			UrlConstants::PORT => null,
-			UrlConstants::PATH => null,
-			UrlConstants::QUERY => null,
-			UrlConstants::FRAGMENT => null,
+		
+		$this->urlParts->scheme = UrlTools::coalesce(
+			UrlTools::parseUrlComponent($url, PHP_URL_SCHEME),
+			UrlTools::parseUrlComponent($canonicalUrl, PHP_URL_SCHEME)
 		);
-
-		$parts = array_merge($defaults, $canonicalParts, $parts);
-
-		$parts = array_merge(array(Con::QUERY => ''), $parts);
-		parse_str($parts[Con::QUERY], $query);
-		$parts[Con::QUERY] = $query;
-		$this->parts = $parts;
+		
+		$this->urlParts->user = UrlTools::coalesce(
+			UrlTools::parseUrlComponent($url, PHP_URL_USER),
+			UrlTools::parseUrlComponent($canonicalUrl, PHP_URL_USER)
+		);
+		
+		$this->urlParts->pass = UrlTools::coalesce(
+			UrlTools::parseUrlComponent($url, PHP_URL_PASS),
+			UrlTools::parseUrlComponent($canonicalUrl, PHP_URL_PASS)
+		);
+		
+		$this->urlParts->host = UrlTools::coalesce(
+			UrlTools::parseUrlComponent($url, PHP_URL_HOST),
+			UrlTools::parseUrlComponent($canonicalUrl, PHP_URL_HOST)
+		);
+		
+		$port = UrlTools::coalesce(
+			UrlTools::parseUrlComponent($url, PHP_URL_PORT),
+			UrlTools::parseUrlComponent($canonicalUrl, PHP_URL_PORT)
+		);
+		
+		$this->urlParts->port = $port !== null ? (int) $port : null;
+		
+		$this->urlParts->path = UrlTools::coalesce(
+			UrlTools::parseUrlComponent($url, PHP_URL_PATH),
+			UrlTools::parseUrlComponent($canonicalUrl, PHP_URL_PATH)
+		);
+		
+		$this->urlParts->query = UrlTools::parseQuery(
+			UrlTools::coalesce(
+				UrlTools::parseUrlComponent($url, PHP_URL_QUERY),
+				UrlTools::parseUrlComponent($canonicalUrl, PHP_URL_QUERY)
+			)
+		);
+		
+		$this->urlParts->fragment = UrlTools::coalesce(
+			UrlTools::parseUrlComponent($url, PHP_URL_FRAGMENT),
+			UrlTools::parseUrlComponent($canonicalUrl, PHP_URL_FRAGMENT)
+		);
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
 	public function getScheme() {
-		if(array_key_exists(Con::SCHEME, $this->parts)) {
-			return $this->parts[Con::SCHEME];
-		}
-		return null;
+		return $this->urlParts->scheme;
 	}
 
 	/**
-	 * @param string $scheme
+	 * @param string|null $scheme
 	 * @return $this
 	 */
 	public function setScheme($scheme) {
-		$this->parts[Con::SCHEME] = $scheme;
+		$this->urlParts->scheme = $scheme;
 		return $this;
 	}
 
 	/**
-	 * @return null|string
+	 * @return string|null
 	 */
 	public function getUsername() {
-		if(array_key_exists(Con::USER, $this->parts)) {
-			return $this->parts[Con::USER];
-		}
-		return null;
+		return $this->urlParts->user;
 	}
 
 	/**
-	 * @param null|string $username
+	 * @param string|null $username
 	 * @return $this
 	 */
 	public function setUsername($username) {
-		$this->parts[Con::USER] = $username;
+		$this->urlParts->user = $username;
 		return $this;
 	}
 
 	/**
-	 * @return null|string
+	 * @return string|null
 	 */
 	public function getPassword() {
-		if(array_key_exists(Con::PASS, $this->parts)) {
-			return $this->parts[Con::PASS];
-		}
-		return null;
+		return $this->urlParts->pass;
 	}
 
 	/**
-	 * @param null|string $password
+	 * @param string|null $password
 	 * @return $this
 	 */
 	public function setPassword($password) {
-		$this->parts[Con::PASS] = $password;
+		$this->urlParts->pass = $password;
 		return $this;
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
 	public function getHost() {
-		if(array_key_exists(Con::HOST, $this->parts)) {
-			return $this->parts[Con::HOST];
-		}
-		return null;
+		return $this->urlParts->host;
 	}
 
 	/**
@@ -117,7 +127,7 @@ class Url {
 	 * @return $this
 	 */
 	public function setHost($host) {
-		$this->parts[Con::HOST] = $host;
+		$this->urlParts->host = $host;
 		return $this;
 	}
 
@@ -125,10 +135,7 @@ class Url {
 	 * @return int|null
 	 */
 	public function getPort() {
-		if(array_key_exists(Con::PORT, $this->parts)) {
-			return $this->parts[Con::PORT];
-		}
-		return null;
+		return $this->urlParts->port;
 	}
 
 	/**
@@ -136,71 +143,68 @@ class Url {
 	 * @return $this
 	 */
 	public function setPort($port) {
-		$this->parts[Con::PORT] = $port;
+		$this->urlParts->port = $port;
 		return $this;
 	}
 
 	/**
-	 * @return null|string
+	 * @return string|null
 	 */
 	public function getPath() {
-		if(array_key_exists(Con::PATH, $this->parts)) {
-			return $this->parts[Con::PATH];
-		}
-		return null;
+		return $this->urlParts->path;
 	}
 
 	/**
-	 * @param null|string $path
+	 * @param string|null $path
 	 * @return $this
 	 */
 	public function setPath($path) {
-		$this->parts[Con::PATH] = $path;
+		$this->urlParts->path = $path;
 		return $this;
 	}
 
 	/**
-	 * @return array
+	 * @return null|array<int|string, int|float|string|array<int|string, mixed>>
 	 */
 	public function getQuery() {
-		if(array_key_exists(Con::QUERY, $this->parts)) {
-			return $this->parts[Con::QUERY];
-		}
-		return null;
+		return $this->urlParts->query;
 	}
 
 	/**
-	 * @param array $query
+	 * @param array<int|string, int|float|string|array<int|string, mixed>>|Traversable<int|string, int|float|string|array<int|string, mixed>> $query
 	 * @return $this
 	 */
 	public function setQuery($query) {
-		$this->parts[Con::QUERY] = $query;
+		if($query instanceof Traversable) {
+			$query = iterator_to_array($query, true);
+		}
+		if(!is_array($query)) {
+			$query = [];
+		}
+		$this->urlParts->query = $query;
 		return $this;
 	}
 
 	/**
-	 * @return null|string
+	 * @return string|null
 	 */
 	public function getFragment() {
-		if(array_key_exists(Con::FRAGMENT, $this->parts)) {
-			return $this->parts[Con::FRAGMENT];
-		}
-		return null;
+		return $this->urlParts->fragment;
 	}
 
 	/**
-	 * @param null|string $fragment
+	 * @param string|null $fragment
 	 * @return $this
 	 */
 	public function setFragment($fragment) {
-		$this->parts[Con::FRAGMENT] = $fragment;
+		$this->urlParts->fragment = $fragment;
 		return $this;
 	}
 
 	/**
 	 * @return string
 	 */
-	function __toString() {
-		return $this->builder->build($this->parts);
+	public function __toString() {
+		return $this->builder->build($this->urlParts);
 	}
 }

@@ -1,7 +1,12 @@
 <?php
-use Kir\Url\UrlFactory;
 
-class UrlFactoryTest extends PHPUnit_Framework_TestCase {
+namespace Kir\Url\UrlFactory;
+
+use Kir\Url\UrlFactory;
+use PHPUnit\Framework\TestCase;
+
+class UrlFactoryTest extends TestCase {
+	/** @return void */
 	public function test() {
 		$factory = new UrlFactory();
 		$url = $factory->create('/path?a=1', 'http://example.org/');
