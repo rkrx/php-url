@@ -3,6 +3,7 @@
 	"description": "Url builder",
 	"license": "MIT",
 	"homepage": "https://github.com/rkrx/php-url",
+	"type": "library",
 	"authors": [{
 		"name": "ron",
 		"email": "ron.kirschler@gmail.com"
