@@ -17,7 +17,7 @@ class Url {
 	 * @param null|string $canonicalUrl
 	 * @param UrlBuilder $builder
 	 */
-	public function __construct($url = null, $canonicalUrl = null, UrlBuilder $builder = null) {
+	public function __construct(string $url = null, ?string $canonicalUrl = null, ?UrlBuilder $builder = null) {
 		$this->urlParts = new UrlParts();
 		
 		$this->builder = $builder ?: new UrlBuilder();
