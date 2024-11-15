@@ -12,7 +12,7 @@ class UrlFactory {
 	/**
 	 * @param UrlBuilder $builder
 	 */
-	public function __construct(UrlBuilder $builder = null) {
+	public function __construct(?UrlBuilder $builder = null) {
 		$this->builder = $builder ?: new UrlBuilder();
 	}
 
