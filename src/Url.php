@@ -7,17 +7,15 @@ use Kir\Url\Tools\UrlTools;
 use Traversable;
 
 class Url {
-	/** @var UrlParts */
-	private $urlParts;
-	/** @var UrlBuilder */
-	private $builder;
+	private UrlParts $urlParts;
+	private UrlBuilder $builder;
 	
 	/**
-	 * @param string $url
+	 * @param null|string $url
 	 * @param null|string $canonicalUrl
-	 * @param UrlBuilder $builder
+	 * @param null|UrlBuilder $builder
 	 */
-	public function __construct(string $url = null, ?string $canonicalUrl = null, ?UrlBuilder $builder = null) {
+	public function __construct(?string $url = null, ?string $canonicalUrl = null, ?UrlBuilder $builder = null) {
 		$this->urlParts = new UrlParts();
 		
 		$this->builder = $builder ?: new UrlBuilder();
@@ -171,15 +169,17 @@ class Url {
 	}
 
 	/**
-	 * @param array<int|string, int|float|string|array<int|string, mixed>>|Traversable<int|string, int|float|string|array<int|string, mixed>> $query
+	 * @param string|array<int|string, int|float|string|array<int|string, mixed>>|Traversable<int|string, int|float|string|array<int|string, mixed>> $query
 	 * @return $this
 	 */
-	public function setQuery($query) {
+	public function setQuery(string|iterable $query) {
 		if($query instanceof Traversable) {
 			$query = iterator_to_array($query, true);
 		}
-		if(!is_array($query)) {
+		if(is_string($query)) {
+			$queryStr = $query;
 			$query = [];
+			parse_str($queryStr, $query);
 		}
 		$this->urlParts->query = $query;
 		return $this;

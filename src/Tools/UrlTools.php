@@ -7,7 +7,7 @@ class UrlTools {
 	 * @param string|null $input
 	 * @return array<string, string|int>
 	 */
-	public static function parseUrl($input) {
+	public static function parseUrl(?string $input) {
 		if($input === null) {
 			return array();
 		}
@@ -23,11 +23,8 @@ class UrlTools {
 	 * @param int<0, max> $component
 	 * @return string|null
 	 */
-	public static function parseUrlComponent($input, $component) {
+	public static function parseUrlComponent(?string $input, int $component) {
 		if($input === null) {
-			return null;
-		}
-		if(!is_int($component)) {
 			return null;
 		}
 		/** @var string|int|false|null $urlData */
